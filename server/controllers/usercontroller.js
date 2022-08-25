@@ -18,8 +18,8 @@ module.exports.register = async (req, res, next) => {
     });
     delete user.password;
     return res.json({ status: true, user });
-  } catch (ex) {
-    next(ex);
+  } catch (error) {
+    next(error);
   }
 };
 
@@ -35,6 +35,38 @@ module.exports.login = async (req, res, next) => {
       return res.json({ msg: "Incorrect Password or Username", status: false });
     delete user.password;
     return res.json({ status: true, user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.setAvatar = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const avatarImage = req.body.image;
+    const userData = await User.findByIdAndUpdate(
+      userId,
+      {
+        isAvatarImageSet: true,
+        avatarImage,
+      },
+      { new: true }
+    );
+    return res.json({
+      isSet: userData.isAvatarImageSet,
+      image: userData.avatarImage,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.getalluser = async (req, res, next) => {
+  try {
+    const users = await User.find({
+      _id: { $new: req.params.id },
+    }).select(["email", "username", "avatarImage", "_id "])
+    return res.json(users)
   } catch (error) {
     next(error);
   }
